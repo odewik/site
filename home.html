@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0F0F0F;
+            color: #CCCCCC;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Шапка сайта */
+        header {
+            background-color: #1A1A1A;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .logo {
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Основная структура */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Сайдбар */
+        .sidebar {
+            background-color: #1A1A1A;
+            width: 50px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .sidebar-expanded {
+            width: 200px;
+            align-items: flex-start;
+        }
+        
+        .toggle-sidebar {
+            background-color: #404040;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-sidebar:hover {
+            background-color: #505050;
+        }
+        
+        /* Иконки меню (заглушки) */
+        .menu-item {
+            width: 40px;
+            height: 40px;
+            background-color: #404040;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-expanded .menu-item {
+            width: 100%;
+            padding: 0 10px;
+            justify-content: flex-start;
+        }
+        
+        .menu-text {
+            display: none;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .sidebar-expanded .menu-text {
+            display: inline-block;
+        }
+        
+        /* Основное содержимое */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #0F0F0F;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .content-placeholder {
+            background-color: #1A1A1A;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+        
+        h1 {
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            color: #CCCCCC;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        /* Футер */
+        footer {
+            background-color: #1A1A1A;
+            padding: 20px;
+            text-align: center;
+            color: #888888;
+        }
+        
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                height: calc(100vh - 60px);
+                z-index: 1000;
+            }
+            
+            .sidebar:not(.sidebar-expanded) {
+                width: 50px;
+            }
+            
+            .main-content {
+                margin-left: 50px;
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+            
+            .overlay-active {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header>
+        <div class="logo">SiteName</div>
+    </header>
+    
+    <div class="container">
+        <!-- Сайдбар (изначально 50px) -->
+        <aside class="sidebar" id="sidebar">
+            <button class="toggle-sidebar" id="toggleSidebar" title="Развернуть меню">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            
+            <!-- Иконки меню -->
+            <div class="menu-item">
+                <span>📊</span>
+                <span class="menu-text"></span>
+            </div>
+            <div class="menu-item">
+                <span>📁</span>
+                <span class="menu-text"></span>
+            </div>
+            <div class="menu-item">
+                <span>⚙️</span>
+                <span class="menu-text"></span>
+            </div>
+            <div class="menu-item">
+                <span>👤</span>
+                <span class="menu-text"></span>
+            </div>
+        </aside>
+        
+        <!-- Основное содержимое -->
+        <main class="main-content">
+            <h1>Добро пожаловать на главную страницу</h1>
+            
+            <div class="content-placeholder">
+                <p>Основное содержимое страницы будет здесь.</p>
+            </div>
+            
+            <div class="content-placeholder">
+                <p>Дополнительные блоки контента.</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Футер -->
+    <footer>
+        <p>© 2023 Все права защищены</p>
+    </footer>
+
+    <script>
+        // Элементы DOM
+        const sidebar = document.getElementById('sidebar');
+        const toggleButton = document.getElementById('toggleSidebar');
+        
+        // Функционал расширения/сужения сайдбара
+        toggleButton.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-expanded');
+            
+            // Обновляем SVG иконку и подсказку
+            if (sidebar.classList.contains('sidebar-expanded')) {
+                toggleButton.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 18L18 6M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+                toggleButton.setAttribute('title', 'Свернуть меню');
+            } else {
+                toggleButton.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                `;
+                toggleButton.setAttribute('title', 'Развернуть меню');
+            }
+        });
+    </script>
+</body>
+</html>

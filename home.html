@@ -25,9 +25,9 @@
             background-color: #1A1A1A;
             padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            height: 60px;
+            height: 56px;
+            gap: 15px;
         }
         
         .logo {
@@ -46,13 +46,14 @@
         /* Сайдбар */
         .sidebar {
             background-color: #1A1A1A;
-            width: 50px;
-            padding: 10px;
+            width: 0px;
+            padding: 0px;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
+            overflow: hidden;
         }
         
         .sidebar-expanded {
@@ -61,7 +62,7 @@
         }
         
         .toggle-sidebar {
-            background-color: #404040;
+            background-color: #1A1A1A;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -70,7 +71,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
             transition: background-color 0.3s;
         }
         
@@ -78,34 +78,25 @@
             background-color: #505050;
         }
         
-        /* Иконки меню (заглушки) */
         .menu-item {
-            width: 40px;
-            height: 40px;
-            background-color: #404040;
-            border-radius: 4px;
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
-            transition: all 0.3s ease;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            cursor: pointer;
         }
         
-        .sidebar-expanded .menu-item {
-            width: 100%;
-            padding: 0 10px;
-            justify-content: flex-start;
+        .menu-item:hover {
+            background-color: #404040;
+            border-radius: 4px;
         }
         
         .menu-text {
-            display: none;
             margin-left: 10px;
-            font-size: 14px;
-        }
-        
-        .sidebar-expanded .menu-text {
-            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
         }
         
         /* Основное содержимое */
@@ -151,14 +142,15 @@
                 left: 0;
                 height: calc(100vh - 60px);
                 z-index: 1000;
+                width: 0px !important; /* Важно: принудительно скрываем */
             }
             
-            .sidebar:not(.sidebar-expanded) {
-                width: 50px;
+            .sidebar-expanded {
+                width: 200px !important; /* Важно: принудительно показываем */
             }
             
             .main-content {
-                margin-left: 50px;
+                margin-left: 0;
             }
             
             .overlay {
@@ -181,34 +173,33 @@
 <body>
     <!-- Шапка сайта -->
     <header>
+        <button class="toggle-sidebar" id="toggleSidebar" title="Развернуть меню">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
         <div class="logo">Site</div>
     </header>
     
     <div class="container">
-        <!-- Сайдбар (изначально 50px) -->
+        <!-- Сайдбар (изначально полностью скрыт) -->
         <aside class="sidebar" id="sidebar">
-            <button class="toggle-sidebar" id="toggleSidebar" title="Развернуть меню">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            
             <!-- Иконки меню -->
             <div class="menu-item">
-                <span>📊</span>
-                <span class="menu-text"></span>
+                <span>😆</span>
+                <span class="menu-text">Кнопка</span>
             </div>
             <div class="menu-item">
-                <span>📁</span>
-                <span class="menu-text"></span>
+                <span>😆</span>
+                <span class="menu-text">Кнопка</span>
             </div>
             <div class="menu-item">
-                <span>⚙️</span>
-                <span class="menu-text"></span>
+                <span>😆</span>
+                <span class="menu-text">Кнопка</span>
             </div>
             <div class="menu-item">
-                <span>👤</span>
-                <span class="menu-text"></span>
+                <span>😆</span>
+                <span class="menu-text">Кнопка</span>
             </div>
         </aside>
         
@@ -252,12 +243,11 @@
                 toggleButton.innerHTML = `
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
                 `;
                 toggleButton.setAttribute('title', 'Развернуть меню');
             }
         });
     </script>
 </body>
-
 </html>
-

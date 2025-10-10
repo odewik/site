@@ -17,10 +17,10 @@
 
 ```bash
 # Клонируйте репозиторий
-git clone https://github.com/your-username/css-methodologies.git
+git clone https://github.com/odewik/site
 
 # Запустите локальный сервер
-cd css-methodologies
+cd site
 python -m http.server 8000
 
 # Откройте в браузере

@@ -76,6 +76,9 @@ body {
 
 .hero-section__button {
     padding: 0.8rem 2rem;
+    background-color: #34495e;
+    color:#e0e0e0;
+    text-decoration: none;
     font-size: 1.1rem;
     border-radius: 6px;
     transition: all 0.3s ease;

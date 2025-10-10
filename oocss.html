@@ -37,7 +37,47 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -59,11 +99,13 @@
                     <li class="nav__item"><a href="bem.html" class="nav__link">БЭМ</a></li>
                     <li class="nav__item"><a href="oocss.html" class="nav__link">OOCSS</a></li>
                     <li class="nav__item"><a href="smacss.html" class="nav__link">SMACSS</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="comparison.html" class="nav__link">Сравнение</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="examples.html" class="nav__link">Примеры</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="resources.html" class="nav__link">Ресурсы</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
     <div class="main-container">
         <aside class="sidebar">
             <h2 class="sidebar__title">Навигация</h2>
@@ -75,39 +117,63 @@
                 <li class="sidebar__nav-item"><a href="comparison.html" class="sidebar__nav-link">Сравнение</a></li>
                 <li class="sidebar__nav-item"><a href="examples.html" class="sidebar__nav-link">Примеры</a></li>
                 <li class="sidebar__nav-item"><a href="resources.html" class="sidebar__nav-link">Ресурсы</a></li>
-                <li class="sidebar__nav-item"><a href="contact.html" class="sidebar__nav-link">Контакты</a></li>
             </ul>
-            <h2 class="sidebar__title">Подпишитесь</h2>
-            <form class="sidebar__form">
-                <label for="email" class="sidebar__label">Получайте обновления</label>
-                <input type="email" id="email" class="blaze-input" placeholder="Введите email" required>
-                <button type="button" class="blaze-button blaze-button--primary sidebar__button">Подписаться</button>
-            </form>
-            <div class="sidebar__ad">
-                <img src="https://via.placeholder.com/250x250.webp?text=Реклама" 
-                     alt="Рекламный баннер" 
-                     class="sidebar__ad-image">
-            </div>
         </aside>
-
         <main class="main">
             <section class="section">
                 <h1 class="section__title">OOCSS (Объектно-ориентированный CSS)</h1>
                 <p class="section__content">
-                    OOCSS (Object-Oriented CSS) — это методология, которая фокусируется на создании переиспользуемых и модульных стилей. Основные принципы: разделение структуры и оформления, а также отделение контейнера от контента.
+                    OOCSS (Object-Oriented CSS), разработанная Николь Салливан, фокусируется на создании модульных и переиспользуемых стилей. Основные принципы включают разделение структуры и оформления, а также отделение контейнера от контента, что позволяет создавать гибкие и масштабируемые компоненты.
                 </p>
                 <ul class="section__list">
-                    <li>Структура и оформление: Стили для структуры (например, размеры) отделяются от визуальных (цвет, шрифты).</li>
-                    <li>Модульность: Создание независимых объектов, которые можно переиспользовать.</li>
+                    <li><strong>Структура и оформление</strong>: Стили для структуры (например, размеры, позиционирование) отделяются от визуальных (цвет, шрифты).</li>
+                    <li><strong>Контейнер и контент</strong>: Контейнеры (например, макеты) отделяются от контента (например, текст или изображения).</li>
                 </ul>
-                <iframe width="100%" height="315" src="https://www.youtube.com/embed/5j3b9Cq1utk" 
-                        title="Объяснение OOCSS" frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen></iframe>
+            </section>
+            <section class="section">
+                <h2 class="section__title">Преимущества OOCSS</h2>
+                <p class="section__content">
+                    OOCSS помогает сократить объем CSS-кода и упрощает его повторное использование. Основные преимущества:
+                </p>
+                <ul class="section__list">
+                    <li>Уменьшение дублирования кода за счет модульности.</li>
+                    <li>Гибкость при изменении дизайна без изменения структуры.</li>
+                    <li>Упрощение поддержки за счет четкого разделения стилей.</li>
+                    <li>Быстрая разработка благодаря переиспользуемым объектам.</li>
+                </ul>
+                <iframe width="100%" height="435" src="https://www.youtube.com/embed/79WUKWMwJcM" title="101 Object oriented CSS" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </section>
+            <section class="section">
+                <h2 class="section__title">Пример реализации</h2>
+                <p class="section__content">
+                    Вот пример кнопки, реализованной с использованием OOCSS:
+                </p>
+                <pre class="section__code">
+&lt;button class="btn skin-primary"&gt;Нажми меня&lt;/button&gt;
+
+&lt;style&gt;
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+.skin-primary {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+}
+.skin-primary:hover {
+    background-color: #2980b9;
+}
+&lt;/style&gt;
+                </pre>
+                <p class="section__content">
+                    В этом примере класс <code>btn</code> определяет структуру, а <code>skin-primary</code> задает визуальное оформление, что позволяет легко менять внешний вид кнопки без изменения ее структуры.
+                </p>
             </section>
         </main>
     </div>
-
     <footer class="footer">
         <div class="footer__container">
             <p class="footer__text">&copy; 2025 CSS Методологии. Все права защищены.</p>
@@ -117,15 +183,6 @@
             </ul>
         </div>
     </footer>
-
-    <div class="modal" id="modal">
-        <div class="modal__content">
-            <h2 class="modal__title">Подписка оформлена</h2>
-            <p>Вы успешно подписались на нашу рассылку!</p>
-            <button class="blaze-button blaze-button--secondary modal__close">Закрыть</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>

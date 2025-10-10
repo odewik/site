@@ -37,7 +37,47 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -59,11 +99,13 @@
                     <li class="nav__item"><a href="bem.html" class="nav__link">БЭМ</a></li>
                     <li class="nav__item"><a href="oocss.html" class="nav__link">OOCSS</a></li>
                     <li class="nav__item"><a href="smacss.html" class="nav__link">SMACSS</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="comparison.html" class="nav__link">Сравнение</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="examples.html" class="nav__link">Примеры</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="resources.html" class="nav__link">Ресурсы</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
     <div class="main-container">
         <aside class="sidebar">
             <h2 class="sidebar__title">Навигация</h2>
@@ -75,64 +117,155 @@
                 <li class="sidebar__nav-item"><a href="comparison.html" class="sidebar__nav-link">Сравнение</a></li>
                 <li class="sidebar__nav-item"><a href="examples.html" class="sidebar__nav-link">Примеры</a></li>
                 <li class="sidebar__nav-item"><a href="resources.html" class="sidebar__nav-link">Ресурсы</a></li>
-                <li class="sidebar__nav-item"><a href="contact.html" class="sidebar__nav-link">Контакты</a></li>
             </ul>
-            <h2 class="sidebar__title">Подпишитесь</h2>
-            <form class="sidebar__form">
-                <label for="email" class="sidebar__label">Получайте обновления</label>
-                <input type="email" id="email" class="blaze-input" placeholder="Введите email" required>
-                <button type="button" class="blaze-button blaze-button--primary sidebar__button">Подписаться</button>
-            </form>
-            <div class="sidebar__ad">
-                <img src="https://via.placeholder.com/250x250.webp?text=Реклама" 
-                     alt="Рекламный баннер" 
-                     class="sidebar__ad-image">
-            </div>
         </aside>
-
         <main class="main">
             <section class="section">
                 <h1 class="section__title">Примеры кода</h1>
                 <p class="section__content">
-                    Ниже приведены примеры реализации кнопки в каждой из методологий.
+                    На этой странице представлены примеры реализации типичных компонентов (кнопки и карточки) с использованием методологий БЭМ, OOCSS и SMACSS. Эти примеры помогут вам понять, как применять каждую методологию в реальных проектах.
                 </p>
-                <h2 class="section__subtitle">БЭМ</h2>
+            </section>
+            <section class="section">
+                <h2 class="section__subtitle">БЭМ: Кнопка и карточка</h2>
+                <p class="section__content">
+                    Пример реализации кнопки и карточки с использованием БЭМ:
+                </p>
                 <pre class="section__code">
+&lt;button class="button button--primary"&gt;Нажми меня&lt;/button&gt;
+&lt;div class="card card--featured"&gt;
+    &lt;h3 class="card__title"&gt;Заголовок карточки&lt;/h3&gt;
+    &lt;p class="card__content"&gt;Описание карточки.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
 .button {
     display: inline-block;
     padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
 }
 .button--primary {
-    background-color: #3498db;
+    background-color: var(--secondary-color);
     color: white;
+    border: none;
 }
+.button--primary:hover {
+    background-color: #2980b9;
+}
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.card--featured {
+    border: 2px solid var(--secondary-color);
+}
+.card__title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.card__content {
+    font-size: 1rem;
+}
+&lt;/style&gt;
                 </pre>
-                <h2 class="section__subtitle">OOCSS</h2>
+            </section>
+            <section class="section">
+                <h2 class="section__subtitle">OOCSS: Кнопка и карточка</h2>
+                <p class="section__content">
+                    Пример реализации кнопки и карточки с использованием OOCSS:
+                </p>
                 <pre class="section__code">
+&lt;button class="btn skin-primary"&gt;Нажми меня&lt;/button&gt;
+&lt;div class="module-card skin-featured"&gt;
+    &lt;h3 class="module-title"&gt;Заголовок карточки&lt;/h3&gt;
+    &lt;p class="module-content"&gt;Описание карточки.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
 .btn {
     display: inline-block;
     padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
 }
 .skin-primary {
-    background-color: #3498db;
+    background-color: var(--secondary-color);
     color: white;
+    border: none;
 }
+.skin-primary:hover {
+    background-color: #2980b9;
+}
+.module-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.skin-featured {
+    border: 2px solid var(--secondary-color);
+}
+.module-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.module-content {
+    font-size: 1rem;
+}
+&lt;/style&gt;
                 </pre>
-                <h2 class="section__subtitle">SMACSS</h2>
+            </section>
+            <section class="section">
+                <h2 class="section__subtitle">SMACSS: Кнопка и карточка</h2>
+                <p class="section__content">
+                    Пример реализации кнопки и карточки с использованием SMACSS:
+                </p>
                 <pre class="section__code">
+&lt;button class="module-button is-primary"&gt;Нажми меня&lt;/button&gt;
+&lt;div class="module-card is-featured"&gt;
+    &lt;h3 class="module-card__title"&gt;Заголовок карточки&lt;/h3&gt;
+    &lt;p class="module-card__content"&gt;Описание карточки.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
 .module-button {
     display: inline-block;
     padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
 }
 .is-primary {
-    background-color: #3498db;
+    background-color: var(--secondary-color);
     color: white;
+    border: none;
 }
+.is-primary:hover {
+    background-color: #2980b9;
+}
+.module-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.is-featured {
+    border: 2px solid var(--secondary-color);
+}
+.module-card__title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.module-card__content {
+    font-size: 1rem;
+}
+&lt;/style&gt;
                 </pre>
             </section>
         </main>
     </div>
-
     <footer class="footer">
         <div class="footer__container">
             <p class="footer__text">&copy; 2025 CSS Методологии. Все права защищены.</p>
@@ -142,15 +275,6 @@
             </ul>
         </div>
     </footer>
-
-    <div class="modal" id="modal">
-        <div class="modal__content">
-            <h2 class="modal__title">Подписка оформлена</h2>
-            <p>Вы успешно подписались на нашу рассылку!</p>
-            <button class="blaze-button blaze-button--secondary modal__close">Закрыть</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>

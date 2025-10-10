@@ -37,7 +37,47 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -59,11 +99,13 @@
                     <li class="nav__item"><a href="bem.html" class="nav__link">БЭМ</a></li>
                     <li class="nav__item"><a href="oocss.html" class="nav__link">OOCSS</a></li>
                     <li class="nav__item"><a href="smacss.html" class="nav__link">SMACSS</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="comparison.html" class="nav__link">Сравнение</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="examples.html" class="nav__link">Примеры</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="resources.html" class="nav__link">Ресурсы</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
     <div class="main-container">
         <aside class="sidebar">
             <h2 class="sidebar__title">Навигация</h2>
@@ -75,26 +117,13 @@
                 <li class="sidebar__nav-item"><a href="comparison.html" class="sidebar__nav-link">Сравнение</a></li>
                 <li class="sidebar__nav-item"><a href="examples.html" class="sidebar__nav-link">Примеры</a></li>
                 <li class="sidebar__nav-item"><a href="resources.html" class="sidebar__nav-link">Ресурсы</a></li>
-                <li class="sidebar__nav-item"><a href="contact.html" class="sidebar__nav-link">Контакты</a></li>
             </ul>
-            <h2 class="sidebar__title">Подпишитесь</h2>
-            <form class="sidebar__form">
-                <label for="email" class="sidebar__label">Получайте обновления</label>
-                <input type="email" id="email" class="blaze-input" placeholder="Введите email" required>
-                <button type="button" class="blaze-button blaze-button--primary sidebar__button">Подписаться</button>
-            </form>
-            <div class="sidebar__ad">
-                <img src="https://via.placeholder.com/250x250.webp?text=Реклама" 
-                     alt="Рекламный баннер" 
-                     class="sidebar__ad-image">
-            </div>
         </aside>
-
         <main class="main">
             <section class="section">
-                <h1 class="section__title">Сравнение методологий</h1>
+                <h1 class="section__title">Сравнение методологий CSS</h1>
                 <p class="section__content">
-                    Ниже представлена таблица, сравнивающая основные аспекты методологий БЭМ, OOCSS и SMACSS.
+                    БЭМ, OOCSS и SMACSS предлагают разные подходы к организации CSS. Ниже представлена таблица, которая сравнивает их ключевые аспекты, чтобы помочь вам выбрать подходящую методологию для вашего проекта.
                 </p>
                 <table class="comparison-table">
                     <thead>
@@ -103,33 +132,42 @@
                             <th>Ключевая идея</th>
                             <th>Преимущества</th>
                             <th>Недостатки</th>
+                            <th>Лучше всего подходит для</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>БЭМ</td>
-                            <td>Строгая нотация именования</td>
-                            <td>Чёткая структура, переиспользуемость</td>
-                            <td>Длинные имена классов</td>
+                            <td>Строгая нотация именования (<code>блок__элемент--модификатор</code>)</td>
+                            <td>Четкая структура, переиспользуемость, независимость компонентов</td>
+                            <td>Длинные имена классов, может быть избыточной для малых проектов</td>
+                            <td>Крупные проекты с большим количеством разработчиков</td>
                         </tr>
                         <tr>
                             <td>OOCSS</td>
-                            <td>Разделение структуры и оформления</td>
-                            <td>Модульные стили, повторное использование</td>
-                            <td>Сложная начальная настройка</td>
+                            <td>Разделение структуры и оформления, модульность</td>
+                            <td>Модульные стили, повторное использование, меньший объем кода</td>
+                            <td>Сложная начальная настройка, требует дисциплины</td>
+                            <td>Проекты, где важна гибкость дизайна</td>
                         </tr>
                         <tr>
                             <td>SMACSS</td>
-                            <td>Категоризация стилей</td>
-                            <td>Масштабируемость для больших проектов</td>
-                            <td>Требует дисциплины</td>
+                            <td>Категоризация стилей (базовые, макет, модули, состояния, темы)</td>
+                            <td>Масштабируемость, логичная организация, поддержка тем</td>
+                            <td>Требует строгого следования правилам</td>
+                            <td>Большие проекты с четкой структурой</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
+            <section class="section">
+                <h2 class="section__title">Как выбрать методологию?</h2>
+                <p class="section__content">
+                    Выбор методологии зависит от размера проекта, состава команды и требований к дизайну. БЭМ идеально подходит для строгой организации и больших команд. OOCSS лучше для проектов, где важна гибкость и минимальный объем кода. SMACSS оптимальна для сложных проектов с четкой категоризацией. Ознакомьтесь с примерами на странице <a href="examples.html" class="section__link">Примеры</a>, чтобы увидеть, как эти методологии применяются на практике.
+                </p>
+            </section>
         </main>
     </div>
-
     <footer class="footer">
         <div class="footer__container">
             <p class="footer__text">&copy; 2025 CSS Методологии. Все права защищены.</p>
@@ -139,15 +177,5 @@
             </ul>
         </div>
     </footer>
-
-    <div class="modal" id="modal">
-        <div class="modal__content">
-            <h2 class="modal__title">Подписка оформлена</h2>
-            <p>Вы успешно подписались на нашу рассылку!</p>
-            <button class="blaze-button blaze-button--secondary modal__close">Закрыть</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
 </body>
 </html>

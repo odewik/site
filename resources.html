@@ -37,14 +37,46 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ресурсы - CSS Методологии</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://unpkg.com/@blaze/css@10.7.0/dist/blaze.min.css">
+    <link rel="stylesheet" href="blaze.css">
 </head>
 <body>
     <header class="header">
@@ -59,53 +91,61 @@
                     <li class="nav__item"><a href="bem.html" class="nav__link">БЭМ</a></li>
                     <li class="nav__item"><a href="oocss.html" class="nav__link">OOCSS</a></li>
                     <li class="nav__item"><a href="smacss.html" class="nav__link">SMACSS</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="comparison.html" class="nav__link">Сравнение</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="examples.html" class="nav__link">Примеры</a></li>
+                    <li class="nav__item nav__item--mobile-only"><a href="resources.html" class="nav__link">Ресурсы</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
-    <div class="main-container">
+    <div class="main-container" id="main-content">
         <aside class="sidebar">
-            <h2 class="sidebar__title">Навигация</h2>
-            <ul class="sidebar__nav">
-                <li class="sidebar__nav-item"><a href="index.html" class="sidebar__nav-link">Главная</a></li>
-                <li class="sidebar__nav-item"><a href="bem.html" class="sidebar__nav-link">БЭМ</a></li>
-                <li class="sidebar__nav-item"><a href="oocss.html" class="sidebar__nav-link">OOCSS</a></li>
-                <li class="sidebar__nav-item"><a href="smacss.html" class="sidebar__nav-link">SMACSS</a></li>
-                <li class="sidebar__nav-item"><a href="comparison.html" class="sidebar__nav-link">Сравнение</a></li>
-                <li class="sidebar__nav-item"><a href="examples.html" class="sidebar__nav-link">Примеры</a></li>
-                <li class="sidebar__nav-item"><a href="resources.html" class="sidebar__nav-link">Ресурсы</a></li>
-                <li class="sidebar__nav-item"><a href="contact.html" class="sidebar__nav-link">Контакты</a></li>
-            </ul>
-            <h2 class="sidebar__title">Подпишитесь</h2>
-            <form class="sidebar__form">
-                <label for="email" class="sidebar__label">Получайте обновления</label>
-                <input type="email" id="email" class="blaze-input" placeholder="Введите email" required>
-                <button type="button" class="blaze-button blaze-button--primary sidebar__button">Подписаться</button>
-            </form>
-            <div class="sidebar__ad">
-                <img src="https://via.placeholder.com/250x250.webp?text=Реклама" 
-                     alt="Рекламный баннер" 
-                     class="sidebar__ad-image">
+            <div class="sidebar__content">
+                <h2 class="sidebar__title">Навигация</h2>
+                <ul class="sidebar__nav">
+                    <li class="sidebar__nav-item"><a href="index.html" class="sidebar__nav-link">Главная</a></li>
+                    <li class="sidebar__nav-item"><a href="bem.html" class="sidebar__nav-link">БЭМ</a></li>
+                    <li class="sidebar__nav-item"><a href="oocss.html" class="sidebar__nav-link">OOCSS</a></li>
+                    <li class="sidebar__nav-item"><a href="smacss.html" class="sidebar__nav-link">SMACSS</a></li>
+                    <li class="sidebar__nav-item"><a href="comparison.html" class="sidebar__nav-link">Сравнение</a></li>
+                    <li class="sidebar__nav-item"><a href="examples.html" class="sidebar__nav-link">Примеры</a></li>
+                    <li class="sidebar__nav-item"><a href="resources.html" class="sidebar__nav-link">Ресурсы</a></li>
+                </ul>
             </div>
         </aside>
-
         <main class="main">
             <section class="section">
-                <h1 class="section__title">Полезные ресурсы</h1>
+                <h1 class="section__title">Ресурсы для изучения</h1>
                 <p class="section__content">
-                    Здесь собраны полезные ссылки и ресурсы для изучения методологий CSS.
+                    Здесь собраны полезные ресурсы, которые помогут вам углубить знания о методологиях CSS, включая официальные документации, статьи и видеоуроки.
                 </p>
+            </section>
+            <section class="section">
+                <h2 class="section__title">Официальные сайты</h2>
                 <ul class="section__list">
-                    <li><a href="https://bem.info" class="section__link">Официальный сайт БЭМ</a></li>
-                    <li><a href="https://github.com/stubbornella/oocss" class="section__link">OOCSS на GitHub</a></li>
-                    <li><a href="https://smacss.com" class="section__link">Официальный сайт SMACSS</a></li>
-                    <li><a href="https://css-tricks.com" class="section__link">CSS-Tricks: статьи о CSS</a></li>
+                    <li><a href="https://bem.info/" class="section__link">Официальный сайт БЭМ</a> — Полная документация и примеры.</li>
+                    <li><a href="https://github.com/stubbornella/oocss" class="section__link">OOCSS на GitHub</a> — Ресурсы и примеры от Николь Салливан.</li>
+                    <li><a href="https://smacss.com/" class="section__link">Официальный сайт SMACSS</a> — Книга и ресурсы от Джонатана Снука.</li>
+                </ul>
+            </section>
+            <section class="section">
+                <h2 class="section__title">Полезные статьи</h2>
+                <ul class="section__list">
+                    <li><a href="https://css-tricks.com/bem-101/" class="section__link">BEM 101</a> — Введение в БЭМ от CSS-Tricks.</li>
+                    <li><a href="https://www.smashingmagazine.com/2011/12/an-introduction-to-object-oriented-css-oocss/" class="section__link">Introduction to OOCSS</a> — Статья на Smashing Magazine.</li>
+                    <li><a href="https://www.smashingmagazine.com/2012/04/a-new-front-end-methodology-smacss/" class="section__link">SMACSS Methodology</a> — Обзор SMACSS на Smashing Magazine.</li>
+                </ul>
+            </section>
+            <section class="section">
+                <h2 class="section__title">Видеоуроки</h2>
+                <ul class="section__list">
+                    <li><a href="https://www.youtube.com/watch?v=3DhbxD5NdGw" class="section__link">Методология БЭМ. Теория + пример</a> — Видеоурок по БЭМ.</li>
+                    <li><a href="https://www.youtube.com/watch?v=79WUKWMwJcM" class="section__link">101 Object oriented CSS</a> — Объяснение OOCSS.</li>
+                    <li><a href="https://www.youtube.com/watch?v=vXW7w3ym8hg" class="section__link">BEM & SMACSS</a> — Обсуждение методологий с использованием Sass.</li>
                 </ul>
             </section>
         </main>
     </div>
-
     <footer class="footer">
         <div class="footer__container">
             <p class="footer__text">&copy; 2025 CSS Методологии. Все права защищены.</p>
@@ -115,15 +155,6 @@
             </ul>
         </div>
     </footer>
-
-    <div class="modal" id="modal">
-        <div class="modal__content">
-            <h2 class="modal__title">Подписка оформлена</h2>
-            <p>Вы успешно подписались на нашу рассылку!</p>
-            <button class="blaze-button blaze-button--secondary modal__close">Закрыть</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>

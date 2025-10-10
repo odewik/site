@@ -25,3 +25,10 @@ python -m http.server 8000
 
 # Откройте в браузере
 # http://localhost:8000
+```
+🛠 Технологии
+HTML5 • CSS3 • JavaScript
+
+БЭМ • OOCSS • SMACSS
+
+CSS Grid • Flexbox • CSS Variables
